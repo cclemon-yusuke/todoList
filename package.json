@@ -1,0 +1,21 @@
+{
+  "name": "todolist",
+  "version": "1.0.0",
+  "description": "sample laravel-mix setting",
+  "license": "MIT",
+  "devDependencies": {
+    "browser-sync-webpack-plugin": "^1.2.0",
+    "browser-sync": "^2.23.6"
+  },
+  "scripts": {
+    "start": "npm run watch",
+    "dev": "NODE_ENV=development webpack --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "watch": "NODE_ENV=development webpack --config=node_modules/laravel-mix/setup/webpack.config.js --watch",
+    "prod": "NODE_ENV=production  webpack --config=node_modules/laravel-mix/setup/webpack.config.js"
+  },
+  "dependencies": {
+    "bootstrap-vue": "^2.0.0-rc.1",
+    "vue": "^2.5.13",
+    "laravel-mix": "^1.7.2"
+  }
+}
