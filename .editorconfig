@@ -1,0 +1,14 @@
+# 初めの行に記述する。この記述をすることで、フォルダ以下のディレクトリのみにルールが適用される
+root = true
+
+[*] # 全てのファイルに適用する
+indent_style = space # インデントを統一する。「tab」か「 space」
+indent_size = 4 # インデントの半角のスペースいくつにするか
+charset = utf-8 # 文字コードを統一
+end_of_line = lf  # 改行コードを指定する
+insert_final_newline = true # フォルダの最後の行に改行
+
+#[*,html] [{*.css,*.scss}] # 適用したいファイルを指定
+# シャープでコメントできる
+
+
