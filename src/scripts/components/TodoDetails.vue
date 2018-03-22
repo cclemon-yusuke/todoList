@@ -1,67 +1,80 @@
 <template>
     <div>
-        <!--<h3>ID：{{todos[0].id}}</h3>-->
-        <!--<h3>タイトル：{{todos[0].title}}</h3>-->
         <commonNav></commonNav>
         <mdc-layout-grid>
+            <mdc-layout-cell desktop=2>
+            </mdc-layout-cell>
             <mdc-layout-cell desktop=8 tablet=12 phone=12>
                 <mdc-card>
                     <mdc-card-header
                         title="詳細ページ">
                     </mdc-card-header>
+                    <mdc-checkbox type="checkbox" v-model='todo.state'
+                                  @focus="isChecked(todo.id)"></mdc-checkbox>
                     <mdc-card-text>
-                        <mdc-textfield v-model="todo.title"  v-bind:disabled="edit" label="タイトル"></mdc-textfield>
-                        <mdc-textfield v-model="todo.details"  v-bind:disabled="edit" label="詳細"></mdc-textfield>
+                        <mdc-textfield v-model="todo.title" v-bind:disabled="edit" label="タイトル"></mdc-textfield>
+                        <mdc-textfield v-model="todo.details" v-bind:disabled="edit" label="詳細"></mdc-textfield>
                     </mdc-card-text>
                     <mdc-card-actions>
                         <mdc-card-action-buttons>
-                            <mdc-card-action-button v-on:click="editClick">編集</mdc-card-action-button>
+                            <mdc-card-action-button v-on:click="editTodo">編集</mdc-card-action-button>
                         </mdc-card-action-buttons>
                         <mdc-card-action-buttons v-if="editcomplete">
-                            <mdc-card-action-button v-on:click="editedClick(todo.id)">完了</mdc-card-action-button>
+                            <mdc-card-action-button v-on:click="onSave(todo.id)">完了</mdc-card-action-button>
                         </mdc-card-action-buttons>
                         <mdc-card-action-icons>
-                            <mdc-card-action-button v-on:click="deleteClick(todo.id)"><router-link to="/">削除</router-link></mdc-card-action-button>
+                            <mdc-card-action-button raised @click="$refs.dialog.show()">削除</mdc-card-action-button>
                         </mdc-card-action-icons>
                     </mdc-card-actions>
                 </mdc-card>
             </mdc-layout-cell>
         </mdc-layout-grid>
 
-        <router-link to="/">戻る</router-link>
+        <mdc-button><router-link to="/">戻る</router-link></mdc-button>
+
+        <mdc-dialog ref="dialog"
+                    title="削除してもいいですか？" accept="はい" cancel="いいえ"
+                    @accept="onAccept(todo.id)" @cancel="onDecline"
+        ></mdc-dialog>
     </div>
 </template>
 
 <script>
     import MdcLayoutCell from "vue-mdc-adapter/components/layout-grid/mdc-layout-cell";
+    import MdcDialog from "vue-mdc-adapter/components/dialog/mdc-dialog";
 
     import commonNav from '../components/Nav.vue';
+    import MdcButton from "vue-mdc-adapter/components/button/mdc-button";
+
+    import TodoSample from '../class/Todo.js'
 
     export default {
         components: {
+            MdcButton,
             MdcLayoutCell,
+            MdcDialog,
             commonNav
         },
-        name: 'detailes_test',
+        name: 'details_test',
         props: ['details'],
         data() {
             return {
-                todo:'',
+                todo: '',
                 todos: [],
                 edit: 'disabled',
-                editcomplete:false
+                editcomplete: false
             }
         },
         created() {
-            let todo_id = this.$router.currentRoute.params.id;
+            let todo_id = Number(this.$router.currentRoute.params.id);
             this.todoId = todo_id;
 
-            let　temporaryTodo=JSON.parse( localStorage.getItem('todos') );
+            let temporaryTodo = JSON.parse(localStorage.getItem('todos'));
 
-            this.todos= JSON.parse( localStorage.getItem('todos') );
+            this.todos = JSON.parse(localStorage.getItem('todos'));
 
-            for(let i=0;i<temporaryTodo.length;i++){
-                if(todo_id===temporaryTodo[i].id){
+            for (let i = 0; i < temporaryTodo.length; i++) {
+                if (todo_id === temporaryTodo[i].id) {
                     this.todo = temporaryTodo[i];
                 }
             }
@@ -70,34 +83,78 @@
             saveTodo: function () {
                 localStorage.setItem('todos', JSON.stringify(this.todos));
             },
-            editClick: function () {
+            /**
+             *
+             */
+            editTodo: function () {
                 this.edit = false;
-                this.editcomplete=true;
+                this.editcomplete = true;
             },
-            editedClick:function (todoid) {
+            /**
+             * 完了ボタンが押された時にローカルストレージに保存する
+             * @param todoid
+             */
+            onSave: function (todo_id) {
 
-                let todosId=todoid;
+                let todosId = todo_id;
 
-                for(let i=0;i<this.todos.length;i++){
-                    if(this.todos[i].id===todosId){
-                        this.todos[i].title=this.todo.title;
-                        this.todos[i].details=this.todo.details;
-                    }
-                }
+                let todoSample = new TodoSample();
+
+                let todoList;
+
+                todoList=todoSample.onSave(this.todos,todosId,this.todo);
+
+                this.todos=todoList;
 
                 this.saveTodo();
             },
-            deleteClick: function (id) {
-                let id_count='';
-                for(let i=0;i<this.todos.length;i++){
-                    if(this.todos[i].id===id){
-                        id_count=i;
-                    }
-                }
-                this.todos.splice(id_count,1);
+            /**
+             * 押されたidに応じて削除する
+             * @param id
+             */
+            onDelete: function (todo_id) {
+
+                let todoSample = new TodoSample();
+
+                let todoDelete;
+
+                todoDelete=todoSample.onDelete(this.todos,todo_id);
+
+                this.todos=todoDelete;
 
                 this.saveTodo();
-
+            },
+            onAccept() {
+                if (this.$listeners['validate']) {
+                    this.$emit('validate', {
+                        accept: (notify = true) => this.foundation.accept(notify)
+                    });
+                    console.log('yes');
+                }
+                else {
+                    this.foundation.accept(true)
+                }
+            },
+            show() {
+                this.foundation.open()
+            },
+            close() {
+                this.foundation.close()
+            },
+            onAccept (detailsId) {
+                this.onDelete(detailsId);
+                this.$router.push('/');
+            },
+            onDecline () {
+                console.log('declined');
+            },
+            isChecked: function (todo_id) {
+                for (let i = 0; i < this.todos.length; i++) {
+                    if (this.todos[i].id === todo_id) {
+                        this.todos[i].state = this.todos[i].state === false;
+                    }
+                }
+                this.saveTodo();
             }
         }
     }

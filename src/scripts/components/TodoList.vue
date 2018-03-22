@@ -1,3 +1,4 @@
+<!--suppress ALL -->
 <template>
     <div>
         <commonNav></commonNav>
@@ -13,10 +14,10 @@
                     <mdc-list bordered v-for="todo in todos">
                         <mdc-list-item>
                             <mdc-checkbox type="checkbox" v-model='todo.state'
-                                          @focus="taskTodo(todo.id)"></mdc-checkbox>
+                                          @focus="isChecked(todo.id)"></mdc-checkbox>
                             {{todo.id}},{{todo.title}},{{todo.state}}
                             <i slot="end-detail" class="material-icons" v-on:click="pageTransition">
-                                <router-link :to="{ name: 'Details', params: { id:  todo.id}}">edit</router-link>
+                                <router-link :to="{ name: 'TodoDetails', params: { id:  todo.id}}">edit</router-link>
                             </i>
                         </mdc-list-item>
                         <mdc-list-divider/>
@@ -33,6 +34,8 @@
     import MdcListItem from 'vue-mdc-adapter/components/list/mdc-list-item';
 
     import commonNav from '../components/Nav.vue';
+
+    import TodoSample from '../class/Todo.js'
 
     export default {
         mounted: function () {
@@ -52,47 +55,57 @@
 
             }
         },
+        created() {
+        },
         methods: {
+            /**
+             * ローカルストレージからTODOの中身を取ってくる
+             */
             loadTodo: function () {
                 this.todos = JSON.parse(localStorage.getItem('todos'));
                 if (!this.todos) {
                     this.todos = [];
                 }
             },
+            /**
+             *　ローカルストレージにTODOを保存する
+             */
             saveTodo: function () {
                 localStorage.setItem('todos', JSON.stringify(this.todos));
             },
-            taskTodo: function (todo_id) {
+            /**
+             *　チェックボックスのアクション時に値を変更する
+             * @param {string} todo_id
+             */
+            isChecked: function (todo_id) {
                 for (let i = 0; i < this.todos.length; i++) {
                     if (this.todos[i].id === todo_id) {
-                        this.todos[i].state = true;
+                        this.todos[i].state = this.todos[i].state;
                     }
                 }
+                this.saveTodo();
             },
+            /**
+             * TODOが追加された時の処理
+             */
             addTodo: function () {
 
                 if (this.newItem === '') return;
 
-                let nextId = '';
+                let todoSample = new TodoSample();
 
-                if (this.todos.length === 0) {
-                    nextId = 1;
-                } else {
-                    nextId = this.todos[0].id + 1;
-                }
+                let next_id = todoSample.nextId(this.todos);
 
-                this.todos.unshift({
-                    id: nextId,
-                    title: this.newItem,
-                    time: moment(new Date).format('YYYY/MM/DD HH:mm:ss'),
-                    state: false,
-                    details:''
-                });
+                let todoList;
+
+                todoList = todoSample.addTodo(this.todos, next_id, this.newItem);
+
+                this.todos = todoList;
 
                 this.saveTodo();
                 this.newItem = '';
             },
-            pageTransition:function () {
+            pageTransition: function () {
                 this.saveTodo();
             }
         }
