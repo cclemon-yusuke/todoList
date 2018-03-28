@@ -2,23 +2,22 @@ import Vue from 'vue';
 
 import Router from 'vue-router'
 
-import Example from '../components/Example.vue';
-import Details from '../components/Details.vue';
-
+import TodoList from '../components/TodoList.vue';
+import TodoDetails from '../components/TodoDetails.vue';
 
 Vue.use(Router);
 
 export default new Router({
     routes:[
         {
-            path:'/',
-            name:'Example',
-            component:Example
+            path:'',
+            name:'TodoList',
+            component:TodoList
         },
         {
-            path:'/details/:id',
-            name:'Details',
-            component:Details
+            path:'/TodoDetails/:id',
+            name:'TodoDetails',
+            component:TodoDetails
         }
     ]
 })

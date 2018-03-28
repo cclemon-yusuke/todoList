@@ -10,7 +10,7 @@
                         title="詳細ページ">
                     </mdc-card-header>
                     <mdc-checkbox type="checkbox" v-model='todo.state'
-                                  @focus="isChecked(todo.id)"></mdc-checkbox>
+                                  @focus="onChecked(todo.id)"></mdc-checkbox>
                     <mdc-card-text>
                         <mdc-textfield v-model="todo.title" v-bind:disabled="edit" label="タイトル"></mdc-textfield>
                         <mdc-textfield v-model="todo.details" v-bind:disabled="edit" label="詳細"></mdc-textfield>
@@ -30,7 +30,9 @@
             </mdc-layout-cell>
         </mdc-layout-grid>
 
-        <mdc-button><router-link to="/">戻る</router-link></mdc-button>
+        <mdc-button>
+            <router-link to="/">戻る</router-link>
+        </mdc-button>
 
         <mdc-dialog ref="dialog"
                     title="削除してもいいですか？" accept="はい" cancel="いいえ"
@@ -44,7 +46,8 @@
     import MdcDialog from "vue-mdc-adapter/components/dialog/mdc-dialog";
     import commonNav from '../components/Nav.vue';
     import MdcButton from "vue-mdc-adapter/components/button/mdc-button";
-    import TodoSample from '../class/Todo.js'
+    import TodoService from '../class/Todo.js'
+
     export default {
         components: {
             MdcButton,
@@ -52,7 +55,7 @@
             MdcDialog,
             commonNav
         },
-        name: 'details_test',
+        name: 'todo_details',
         props: ['details'],
         data() {
             return {
@@ -63,13 +66,17 @@
             }
         },
         created() {
-            let todo_id = Number(this.$router.currentRoute.params.id);
-            this.todoId = todo_id;
-            let temporaryTodo = JSON.parse(localStorage.getItem('todos'));
-            this.todos = JSON.parse(localStorage.getItem('todos'));
-            for (let i = 0; i < temporaryTodo.length; i++) {
-                if (todo_id === temporaryTodo[i].id) {
-                    this.todo = temporaryTodo[i];
+            if (isNaN(Number(this.$router.currentRoute.params.id))) {
+                this.$router.push('/');
+            } else {
+                let todo_id = Number(this.$router.currentRoute.params.id);
+                this.todoId = todo_id;
+                let temporaryTodo = JSON.parse(localStorage.getItem('todos'));
+                this.todos = JSON.parse(localStorage.getItem('todos'));
+                for (let i = 0; i < temporaryTodo.length; i++) {
+                    if (todo_id === temporaryTodo[i].id) {
+                        this.todo = temporaryTodo[i];
+                    }
                 }
             }
         },
@@ -90,10 +97,10 @@
              */
             onSave: function (todo_id) {
                 let todosId = todo_id;
-                let todoSample = new TodoSample();
+                let TodoService = new TodoService();
                 let todoList;
-                todoList=todoSample.onSave(this.todos,todosId,this.todo);
-                this.todos=todoList;
+                todoList = TodoService.onSave(this.todos, todosId, this.todo);
+                this.todos = todoList;
                 this.saveTodo();
             },
             /**
@@ -101,10 +108,10 @@
              * @param id
              */
             onDelete: function (todo_id) {
-                let todoSample = new TodoSample();
+                let TodoService = new TodoService();
                 let todoDelete;
-                todoDelete=todoSample.onDelete(this.todos,todo_id);
-                this.todos=todoDelete;
+                todoDelete = TodoService.onDelete(this.todos, todo_id);
+                this.todos = todoDelete;
                 this.saveTodo();
             },
             onAccept() {
@@ -112,7 +119,6 @@
                     this.$emit('validate', {
                         accept: (notify = true) => this.foundation.accept(notify)
                     });
-                    console.log('yes');
                 }
                 else {
                     this.foundation.accept(true)
@@ -124,19 +130,19 @@
             close() {
                 this.foundation.close()
             },
-            onAccept (detailsId) {
+            onAccept(detailsId) {
                 this.onDelete(detailsId);
                 this.$router.push('/');
             },
-            onDecline () {
+            onDecline() {
                 console.log('declined');
             },
-            isChecked: function (todo_id) {
-                for (let i = 0; i < this.todos.length; i++) {
-                    if (this.todos[i].id === todo_id) {
-                        this.todos[i].state = this.todos[i].state === false;
-                    }
-                }
+            onChecked: function (todo_id) {
+                // for (let i = 0; i < this.todos.length; i++) {
+                //     if (this.todos[i].id === todo_id) {
+                //         this.todos[i].state = this.todos[i].state === false;
+                //     }
+                // }
                 this.saveTodo();
             }
         }

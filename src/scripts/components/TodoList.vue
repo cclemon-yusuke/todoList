@@ -14,7 +14,7 @@
                     <mdc-list bordered v-for="todo in todos">
                         <mdc-list-item>
                             <mdc-checkbox type="checkbox" v-model='todo.state'
-                                          @focus="isChecked(todo.id)"></mdc-checkbox>
+                                          @focus="saveTodo()"></mdc-checkbox>
                             {{todo.id}},{{todo.title}},{{todo.state}}
                             <i slot="end-detail" class="material-icons" v-on:click="pageTransition">
                                 <router-link :to="{ name: 'TodoDetails', params: { id:  todo.id}}">edit</router-link>
@@ -33,10 +33,11 @@
     import MdcCheckbox from 'vue-mdc-adapter/components/checkbox/mdc-checkbox';
     import MdcListItem from 'vue-mdc-adapter/components/list/mdc-list-item';
     import commonNav from '../components/Nav.vue';
-    import TodoSample from '../class/Todo.js'
+    import TodoService from '../class/Todo.js'
+
     export default {
         mounted: function () {
-            this.loadTodo();
+
         },
         components: {
             MdcListItem,
@@ -52,6 +53,7 @@
             }
         },
         created() {
+            this.loadTodo();
         },
         methods: {
             /**
@@ -70,27 +72,13 @@
                 localStorage.setItem('todos', JSON.stringify(this.todos));
             },
             /**
-             *　チェックボックスのアクション時に値を変更する
-             * @param {string} todo_id
-             */
-            isChecked: function (todo_id) {
-                for (let i = 0; i < this.todos.length; i++) {
-                    if (this.todos[i].id === todo_id) {
-                        this.todos[i].state = this.todos[i].state;
-                    }
-                }
-                this.saveTodo();
-            },
-            /**
              * TODOが追加された時の処理
              */
             addTodo: function () {
                 if (this.newItem === '') return;
-                let todoSample = new TodoSample();
-                let next_id = todoSample.nextId(this.todos);
-                let todoList;
-                todoList = todoSample.addTodo(this.todos, next_id, this.newItem);
-                this.todos = todoList;
+                let TodoService = new TodoService();
+                let next_id = TodoService.nextId(this.todos);
+                this.todos = TodoService.addTodo(this.todos, next_id, this.newItem);
                 this.saveTodo();
                 this.newItem = '';
             },

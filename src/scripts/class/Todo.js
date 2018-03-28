@@ -1,6 +1,6 @@
 import moment from "moment";
 
-class TodoSample {
+class TodoService {
     constructor() {
         // this.id = this.nextId();
         this.state = false;
@@ -67,4 +67,4 @@ class TodoSample {
     }
 }
 
-export default TodoSample;
+export default TodoService;
