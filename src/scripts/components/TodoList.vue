@@ -44,7 +44,7 @@
             MdcCheckbox,
             commonNav
         },
-        name: 'sample',
+        name: 'todo_list',
         data() {
             return {
                 todos: [],
